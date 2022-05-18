@@ -6,7 +6,6 @@ import {
   DataTypes,
   Sequelize,
 } from "sequelize";
-import { sequelize } from ".";
 
 export class Todo extends Model<
   InferAttributes<Todo>,

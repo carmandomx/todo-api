@@ -31,40 +31,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const models_1 = require("./models");
-const Todo_routes_1 = require("./routes/Todo.routes");
-const User_routes_1 = require("./routes/User.routes");
+exports.isAuthenticated = void 0;
 const admin = __importStar(require("firebase-admin"));
-dotenv_1.default.config();
-console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-admin.initializeApp();
-const app = (0, express_1.default)();
-const port = process.env.PORT;
-const db_name = process.env.DB_NAME;
-const db_username = process.env.DB_USERNAME;
-const db_password = process.env.DB_PASSWORD;
-const db_host = process.env.DB_HOSTNAME;
-// Middlewares //
-app.use(express_1.default.json());
-// Routes //
-app.use("/todos", Todo_routes_1.TodoRouter);
-app.use("/user", User_routes_1.UserRouter);
-app.get("/", (req, res) => {
-    res.send(req.originalUrl);
-});
-app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
+const isAuthenticated = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { authorization } = req.headers;
+    if (authorization === undefined) {
+        res.statusCode = 401;
+        return res.send({
+            error: "No auth",
+        });
+    }
+    if (!authorization.startsWith("Bearer")) {
+        res.statusCode = 401;
+        return res.send({
+            error: "No auth",
+        });
+    }
+    // "Bearer here's.my.JWToken"
+    const splittedToken = authorization.split("Bearer ");
+    if (splittedToken.length !== 2) {
+        res.statusCode = 401;
+        return res.send({
+            error: "No auth",
+        });
+    }
+    const token = splittedToken[1];
     try {
-        (0, models_1.startSequelize)(db_name, db_password, db_host, db_username);
-        console.log("Up and running!!!");
+        const decodedToken = yield admin
+            .auth()
+            .verifyIdToken(token);
+        res.locals = Object.assign(Object.assign({}, res.locals), { email: decodedToken.email, uid: decodedToken.uid, role: decodedToken.role });
+        return next();
     }
     catch (error) {
         console.error(error);
-        process.abort();
+        res.statusCode = 401;
+        return res.send({
+            error: "No auth",
+        });
     }
-}));
+});
+exports.isAuthenticated = isAuthenticated;

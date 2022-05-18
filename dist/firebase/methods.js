@@ -31,40 +31,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const models_1 = require("./models");
-const Todo_routes_1 = require("./routes/Todo.routes");
-const User_routes_1 = require("./routes/User.routes");
+exports.readUser = exports.createUser = void 0;
 const admin = __importStar(require("firebase-admin"));
-dotenv_1.default.config();
-console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-admin.initializeApp();
-const app = (0, express_1.default)();
-const port = process.env.PORT;
-const db_name = process.env.DB_NAME;
-const db_username = process.env.DB_USERNAME;
-const db_password = process.env.DB_PASSWORD;
-const db_host = process.env.DB_HOSTNAME;
-// Middlewares //
-app.use(express_1.default.json());
-// Routes //
-app.use("/todos", Todo_routes_1.TodoRouter);
-app.use("/user", User_routes_1.UserRouter);
-app.get("/", (req, res) => {
-    res.send(req.originalUrl);
+// admin@test.com / test123
+const createUser = (displayName, email, password, role) => __awaiter(void 0, void 0, void 0, function* () {
+    const { uid } = yield admin.auth().createUser({
+        displayName,
+        email,
+        password,
+    });
+    yield admin.auth().setCustomUserClaims(uid, { role });
+    return uid;
 });
-app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        (0, models_1.startSequelize)(db_name, db_password, db_host, db_username);
-        console.log("Up and running!!!");
-    }
-    catch (error) {
-        console.error(error);
-        process.abort();
-    }
-}));
+exports.createUser = createUser;
+const readUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield admin.auth().getUser(userId);
+    return user;
+});
+exports.readUser = readUser;
+// export const getAllUsers = async () => {
+//   const listAllMyUsers = admin.auth().listUsers(10);
+//   const users = await admin.auth().getUsers(listAllMyUsers)
+// }

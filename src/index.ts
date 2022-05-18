@@ -2,8 +2,13 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import { startSequelize } from "./models";
 import { TodoRouter } from "./routes/Todo.routes";
+import { UserRouter } from "./routes/User.routes";
+import * as admin from "firebase-admin";
+
 dotenv.config();
 
+console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+admin.initializeApp();
 const app = express();
 
 const port = process.env.PORT;
@@ -18,6 +23,7 @@ app.use(express.json());
 
 // Routes //
 app.use("/todos", TodoRouter);
+app.use("/user", UserRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send(req.originalUrl);
