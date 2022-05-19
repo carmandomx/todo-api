@@ -9,10 +9,12 @@ export const isAuthenticated = async (
   const { authorization } = req.headers;
 
   if (authorization === undefined) {
+    
     res.statusCode = 401;
     return res.send({
       error: "No auth",
     });
+    
   }
 
   if (!authorization.startsWith("Bearer")) {

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { createUser, readUser } from "../firebase/methods";
+import { createUser, getAllUsers, readUser } from "../firebase/methods";
 import { hasRole } from "../middlewares/hasRole";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
 
@@ -26,16 +26,39 @@ UserRouter.post("/", async (req: Request, res: Response) => {
   }
 });
 
+// createDoctor - Authenticado y el rol debe ser admin
+
 UserRouter.get(
   "/:userId",
   isAuthenticated,
-  hasRole(["admin"], true),
+  hasRole({
+    roles: ["admin"],
+    allowSameUser: true,
+  }), // Solamente el SU pueda acceder
   async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     try {
       const user = await readUser(userId);
       return res.status(200).send(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: "something went wrong" });
+    }
+  }
+);
+
+UserRouter.get(
+  "/",
+  isAuthenticated,
+  hasRole({
+    roles: ["admin"],
+    allowSameUser: false,
+  }),
+  async (req: Request, res: Response) => {
+    try {
+      const users = await getAllUsers();
+      res.status(200).send(users);
     } catch (error) {
       console.error(error);
       res.status(500).send({ error: "something went wrong" });

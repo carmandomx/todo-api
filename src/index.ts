@@ -4,6 +4,7 @@ import { startSequelize } from "./models";
 import { TodoRouter } from "./routes/Todo.routes";
 import { UserRouter } from "./routes/User.routes";
 import * as admin from "firebase-admin";
+import { AdminRouter } from "./routes/Admin.routes";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(express.json());
 // Routes //
 app.use("/todos", TodoRouter);
 app.use("/user", UserRouter);
+app.use("/admin", AdminRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send(req.originalUrl);

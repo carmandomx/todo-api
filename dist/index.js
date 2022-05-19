@@ -41,6 +41,7 @@ const models_1 = require("./models");
 const Todo_routes_1 = require("./routes/Todo.routes");
 const User_routes_1 = require("./routes/User.routes");
 const admin = __importStar(require("firebase-admin"));
+const Admin_routes_1 = require("./routes/Admin.routes");
 dotenv_1.default.config();
 console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 admin.initializeApp();
@@ -55,6 +56,7 @@ app.use(express_1.default.json());
 // Routes //
 app.use("/todos", Todo_routes_1.TodoRouter);
 app.use("/user", User_routes_1.UserRouter);
+app.use("/admin", Admin_routes_1.AdminRouter);
 app.get("/", (req, res) => {
     res.send(req.originalUrl);
 });

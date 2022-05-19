@@ -32,9 +32,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readUser = exports.createUser = void 0;
+exports.getAllUsers = exports.readUser = exports.createUser = void 0;
 const admin = __importStar(require("firebase-admin"));
-// admin@test.com / test123
+const mapToUser = (user) => {
+    const customClaims = (user.customClaims || { role: "" });
+    const role = customClaims.role ? customClaims.role : "";
+    return {
+        uid: user.uid,
+        email: user.email,
+        userName: user.displayName,
+        role,
+        isDisabled: user.disabled,
+    };
+};
 const createUser = (displayName, email, password, role) => __awaiter(void 0, void 0, void 0, function* () {
     const { uid } = yield admin.auth().createUser({
         displayName,
@@ -42,15 +52,21 @@ const createUser = (displayName, email, password, role) => __awaiter(void 0, voi
         password,
     });
     yield admin.auth().setCustomUserClaims(uid, { role });
+    // Guardar a Postgresql -> Como van a manejar si esto falla?
     return uid;
 });
 exports.createUser = createUser;
+// UserProfileModule -> CRU
+// MedicalHistoryModule -> CRU
+// ContactInfoModule -> CRU
 const readUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield admin.auth().getUser(userId);
-    return user;
+    return mapToUser(user);
 });
 exports.readUser = readUser;
-// export const getAllUsers = async () => {
-//   const listAllMyUsers = admin.auth().listUsers(10);
-//   const users = await admin.auth().getUsers(listAllMyUsers)
-// }
+const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const listAllMyUsers = yield admin.auth().listUsers(10);
+    const users = listAllMyUsers.users.map(mapToUser);
+    return users;
+});
+exports.getAllUsers = getAllUsers;
