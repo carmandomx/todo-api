@@ -3,6 +3,9 @@ import { Role } from "../types";
 
 // admin@test.com / test123
 
+// User.hasOne(Profile)
+// User.belongsTo(Profile)
+
 interface User {
   uid: string;
   email: string;
@@ -58,4 +61,18 @@ export const getAllUsers = async () => {
   const users = listAllMyUsers.users.map(mapToUser);
 
   return users;
+};
+
+export const updateUser = async (uid: string, displayName: string) => {
+  const user = await admin.auth().updateUser(uid, {
+    displayName,
+  });
+
+  return mapToUser(user);
+};
+
+export const disableUser = async (uid: string, disabled: boolean) => {
+  const user = await admin.auth().updateUser(uid, { disabled });
+
+  return mapToUser(user);
 };

@@ -1,5 +1,11 @@
 import { Router, Request, Response } from "express";
-import { createUser, getAllUsers, readUser } from "../firebase/methods";
+import {
+  createUser,
+  disableUser,
+  getAllUsers,
+  readUser,
+  updateUser,
+} from "../firebase/methods";
 import { hasRole } from "../middlewares/hasRole";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
 
@@ -62,6 +68,58 @@ UserRouter.get(
     } catch (error) {
       console.error(error);
       res.status(500).send({ error: "something went wrong" });
+    }
+  }
+);
+
+UserRouter.patch(
+  "/:userId",
+  isAuthenticated,
+  hasRole({
+    roles: ["admin"],
+    allowSameUser: true,
+  }),
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const { displayName } = req.body;
+
+    if (!displayName) {
+      return res.status(400).send({
+        error: "no fields to update",
+      });
+    }
+
+    try {
+      const user = await updateUser(userId, displayName);
+      return res.status(200).send(user);
+    } catch (error) {
+      return res.status(500).send({ error: "something went wrong" });
+    }
+  }
+);
+
+UserRouter.delete(
+  "/:userId",
+  isAuthenticated,
+  hasRole({
+    roles: ["admin"],
+    allowSameUser: true,
+  }),
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const { disabled } = req.body;
+
+    if (disabled === undefined || disabled === null) {
+      return res.status(400).send({
+        error: "no fields to update",
+      });
+    }
+
+    try {
+      const user = await disableUser(userId, disabled);
+      return res.status(200).send(user);
+    } catch (error) {
+      return res.status(500).send({ error: "something went wrong" });
     }
   }
 );

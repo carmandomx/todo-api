@@ -63,3 +63,41 @@ exports.UserRouter.get("/", isAuthenticated_1.isAuthenticated, (0, hasRole_1.has
         res.status(500).send({ error: "something went wrong" });
     }
 }));
+exports.UserRouter.patch("/:userId", isAuthenticated_1.isAuthenticated, (0, hasRole_1.hasRole)({
+    roles: ["admin"],
+    allowSameUser: true,
+}), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { displayName } = req.body;
+    if (!displayName) {
+        return res.status(400).send({
+            error: "no fields to update",
+        });
+    }
+    try {
+        const user = yield (0, methods_1.updateUser)(userId, displayName);
+        return res.status(200).send(user);
+    }
+    catch (error) {
+        return res.status(500).send({ error: "something went wrong" });
+    }
+}));
+exports.UserRouter.delete("/:userId", isAuthenticated_1.isAuthenticated, (0, hasRole_1.hasRole)({
+    roles: ["admin"],
+    allowSameUser: true,
+}), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { disabled } = req.body;
+    if (disabled === undefined || disabled === null) {
+        return res.status(400).send({
+            error: "no fields to update",
+        });
+    }
+    try {
+        const user = yield (0, methods_1.disableUser)(userId, disabled);
+        return res.status(200).send(user);
+    }
+    catch (error) {
+        return res.status(500).send({ error: "something went wrong" });
+    }
+}));
