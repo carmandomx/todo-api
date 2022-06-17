@@ -17,7 +17,6 @@ const createTodo = (description) => __awaiter(void 0, void 0, void 0, function* 
         const newTodo = yield Todo_model_1.Todo.create({
             description,
         });
-        console.log(newTodo.id);
         return newTodo.id;
     }
     catch (error) {

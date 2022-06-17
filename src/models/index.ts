@@ -20,5 +20,7 @@ export const startSequelize = (
     initModel(sequelize);
   }
 
-  sequelize.sync();
+  
+
+  return sequelize;
 };
