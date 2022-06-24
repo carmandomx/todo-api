@@ -6,7 +6,7 @@ export const createTodo = async (description: string) => {
     const newTodo = await Todo.create({
       description,
     });
-    console.log(newTodo.id);
+    
     return newTodo.id;
   } catch (error) {
     console.error(error);
@@ -18,7 +18,7 @@ export const fetchATodoById = async (todoId: number) => {
   let todo: Todo | null;
   try {
     todo = await Todo.findByPk(todoId);
-    console.log(todo);
+    
     if (todo === null) {
       // Null check
       return null;

@@ -15,6 +15,12 @@ const Todo_repo_1 = require("../repository/Todo.repo");
 exports.TodoRouter = (0, express_1.Router)();
 exports.TodoRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { description } = req.body;
+    if (!description) {
+        res.status(400);
+        return res.send({
+            message: 'No description'
+        });
+    }
     const newTodoId = yield (0, Todo_repo_1.createTodo)(description);
     res.statusCode = 201;
     res.send({

@@ -9,6 +9,14 @@ export const TodoRouter = Router();
 
 TodoRouter.post("/", async (req: Request, res: Response) => {
   const { description } = req.body;
+
+  if (!description) {
+    res.status(400)
+    return res.send({
+      message: 'No description'
+    })
+  }
+
   const newTodoId = await createTodo(description);
 
   res.statusCode = 201;
