@@ -20,6 +20,7 @@ export const startSequelize = (
     initModel(sequelize);
   }
 
+  
 
-    return sequelize;
+  return sequelize;
 };
